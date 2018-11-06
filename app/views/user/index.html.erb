@@ -1,0 +1,28 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Mi Perfil</h4></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Mi Informacion</h4></div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4"><b>Nombre:</b> <%= @user.nombre %></div>
+            <div class="col-md-4 offset-md-4"><b>RFC:</b> <%= @user.rfc %> </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4"><b>E-mail:</b> <%= @user.email %></div>
+            <div class="col-md-4 offset-md-4"><b>Compañia:</b> <%= @user.company %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

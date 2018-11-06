@@ -1,0 +1,218 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Sucursales</h4></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Administrar Sucursales</h4></div>
+        <div class="panel-body">
+          <div class="form-horizontal">
+            <fieldset>
+              <%= form_for(@offices_new, url: new_offices_path) do |f| %>
+                <div class="form-group">
+                  <%= f.label :"ID Surcursal", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :id, autofocus: true, class: "form-control input-md", placeholder: "ID Surcursal", readonly: true %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <%= f.label :"Nombre Surcursal", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :name, autofocus: true, class: "form-control input-md", placeholder: "Nombre Surcursal" %>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :"Dirrecion", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :address, autofocus: true, class: "form-control input-md", placeholder: "Dirrecion" %>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :"Colonia", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :neighborhood, autofocus: true, class: "form-control input-md", placeholder: "Colonia" %>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :"Codigo Postal & Ciudad", class: "col-md-2 control-label" %>
+                  <div id="group_postal_code">
+
+                    <div class="col-md-2">
+                      <%= f.text_field :postal, autofocus: true, class: "form-control input-md", placeholder: "Codigo Postal", type: "number" %>
+                    </div>
+                  </div>
+                  <div id="group_city">
+                    <div class="col-md-2">
+                      <%= f.text_field :city, autofocus: true, class: "form-control input-md", placeholder: "Ciudad" %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <%= f.label :"Pais", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :country, autofocus: true, class: "form-control input-md", placeholder: "Pais" %>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="col-md-2 control-label"></label>
+                  <div class="col-md-4">
+                    <%= f.submit "Guardar", class: "btn btn-primary" %>
+                    <%= f.button "Limpiar", class: "btn btn-primary discard", id: "discard", type: "button" %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="col-md-4 col-md-offset-2" id="alert">
+                <% if flash[:alert] %>
+                  <div class="alert alert-success" role="alert"> <%= flash[:alert] %></div>
+                <% end %>
+                <% if flash[:error] %>
+                  <div class="alert alert-danger" role="alert"> <%= flash[:error] %></div>
+                <% end %>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Lista Sucursales</h4></div>
+        <div class="panel-body">
+          <table class="table">
+            <thead class="thead-light">
+            <tr>
+              <th scope="col">Sucursales Id</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">Dirrecion</th>
+              <th scope="col">Colonia</th>
+              <th scope="col">Codigo Postal</th>
+              <th scope="col">Ciudad</th>
+              <th scope="col">Pais</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% if @offices.empty? %>
+              <tr>
+                <td>No existen Sucursales</td>
+              </tr>
+            <% else %>
+              <% @offices.each do |office| %>
+                <tr data-id="<%= office.id %>">
+                  <td><%= office.id %></td>
+                  <td><%= office.name %></td>
+                  <td><%= office.address %></td>
+                  <td><%= office.neighborhood %></td>
+                  <td><%= office.postal %></td>
+                  <td><%= office.city %></td>
+                  <td><%= office.country %></td>
+                  <td>
+                    <button type="button" name="delete_office" id="delete_office"
+                            class="btn btn-primary delete_office"
+                            value="<%= office.id %>">Delete
+                    </button>
+                    <button type="button" name="edit_office" id="edit_office"
+                            class="btn btn-primary edit_office"
+                            value="<%= office.id %>">Edit
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Move to assets/public/office/index.js file-->
+<% content_for :head do %>
+  <script type="text/javascript">
+      $(document).ready(function () {
+
+          $(".discard").on('click', function () {
+              $('.has-error').removeClass('has-error');
+              $('#alert').empty();
+              $(".input-md").each(function () {
+                  $(this).val('');
+              });
+          });
+
+          $(".delete_office").on('click', function () {
+              var row = $(this).parents('tr');
+              var id = row.data('id');
+
+              $.ajax({
+                  url: '<%= deleted_office_path %>',
+                  headers: {'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')},
+                  type: 'POST',
+                  dataType: 'JSON',
+                  data: {'id': id},
+                  success: function (result) {
+
+                      $('.has-error').removeClass('has-error');
+                      $('#alert').empty();
+                      $(".input-md").each(function () {
+                          $(this).val('');
+                      });
+                      $('#alert').append('<div class="alert alert-success">Usuario Eliminado exitosamente</div>');
+                      row.fadeOut();
+                  },
+              });
+          });
+
+
+          $(".edit_office").on('click', function () {
+
+              $.ajax({
+                  url: '/office/' + $(this).val(),
+                  type: 'GET',
+                  success: function (data) {
+
+                      var id;
+                      var name;
+                      var address;
+                      var neighborhood;
+                      var postal, city, country;
+
+                      id = data.id;
+                      name = data.name;
+                      address = data.address;
+                      neighborhood = data.neighborhood;
+                      postal = data.postal;
+                      city = data.city;
+                      country = data.country;
+
+                      $("#office_name").val(name);
+                      $("#office_address").val(address);
+                      $("#office_neighborhood").val(neighborhood);
+                      $("#office_postal").val(postal);
+                      $("#office_city").val(city);
+                      $("#office_country").val(country);
+                      $("#office_id").val(id);
+
+                  },
+              });
+          });
+
+      });
+
+
+  </script>
+<% end %>

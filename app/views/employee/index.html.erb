@@ -1,0 +1,211 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Empleados</h4></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Administrar Empleados</h4></div>
+        <div class="panel-body">
+          <div class="form-horizontal">
+            <fieldset>
+              <%= form_for(@employees_new, url: new_employees_path) do |f| %>
+                <div class="form-group">
+                  <%= f.label :"ID Empleado", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :id, autofocus: true, class: "form-control input-md", placeholder: "ID Empleado", readonly: true%>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <%= f.label :"Nombre Empleado", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :name, autofocus: true, class: "form-control input-md", placeholder: "Nombre Empleado" %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <%= f.label :"RFC", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :rfc, autofocus: true, class: "form-control input-md", placeholder: "RFC" %>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <%= f.label :"Puesto", class: "col-md-2 control-label" %>
+                  <div class="col-md-4">
+                    <%= f.text_field :job, autofocus: true, class: "form-control input-md", placeholder: "Puesto" %>
+                  </div>
+                </div>
+                <div class="form-group" id="group_office">
+                  <label class="col-md-2 control-label" for="name_class">Sucursales</label>
+                  <div class="col-md-4">
+                    <select id="employee[office_id]" name="employee[office_id]" class="form-control selector">
+                      <option value="default" id="default" selected disabled hidden>Seleciona Sucursal</option>
+                      <% if @offices.empty? %>
+                        <option value="default" id="default">No existen sucursales</option>
+                      <% else %>
+                        <% @offices.each do |office| %>
+                          <option value="<%= office.id %>" id="<%= office.id %>"><%= office.id %>
+                            - <%= office.name %></option>
+                        <% end %>
+                      <% end %>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-md-2 control-label"></label>
+                  <div class="col-md-4">
+                    <%= f.submit "Guardar", class: "btn btn-primary" %>
+                    <%= f.button "Limpiar", class:"btn btn-primary discard", id: "discard", type:"button" %>
+                  </div>
+                </div>
+              <% end %>
+              <div class="col-md-4 col-md-offset-2" id="alert">
+                <% if flash[:alert] %>
+                  <div class="alert alert-success" role="alert"> <%= flash[:alert] %></div>
+                <% end %>
+                <% if flash[:error] %>
+                  <div class="alert alert-danger" role="alert"> <%= flash[:error] %></div>
+                <% end %>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading"><h4>Lista Empleados</h4></div>
+        <div class="panel-body">
+          <table class="table">
+            <thead class="thead-light">
+            <tr>
+              <th scope="col">Empleado Id</th>
+              <th scope="col">Nombre</th>
+              <th scope="col">RFC</th>
+              <th scope="col">Posicion</th>
+              <th scope="col">Sucursal</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% if @employees.empty? %>
+              <tr>
+                <td>No existen Empleados</td>
+              </tr>
+            <% else %>
+              <% @employees.each do |employe| %>
+                <tr data-id="<%= employe.id %>">
+                  <td><%= employe.id %></td>
+                  <td><%= employe.name %></td>
+                  <td><%= employe.rfc %></td>
+                  <td><%= employe.job %></td>
+                  <td>
+                    <button type="button" name="delete_employee" id="delete_employee"
+                            class="btn btn-primary delete_employee"
+                            value="<%= employe.id %>">Delete
+                    </button>
+                    <button type="button" name="edit_employee" id="edit_employee"
+                            class="btn btn-primary edit_employee"
+                            value="<%= employe.id %>">Edit
+                    </button>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Move to assets/public/employee/index.js file-->
+<% content_for :head do %>
+  <script type="text/javascript">
+      $(document).ready(function () {
+
+          $(".delete_employee").on('click', function () {
+              var row = $(this).parents('tr');
+              row.fadeOut();
+          });
+
+          $(".discard").on('click', function () {
+              $('.has-error').removeClass('has-error');
+              $('#alert').empty();
+              $('.selector').val('default');
+              $(".input-md").each(function () {
+                  $(this).val('');
+              });
+          });
+
+          $(".delete_employee").on('click', function () {
+              var row = $(this).parents('tr');
+              var id = row.data('id');
+
+              $.ajax({
+                  url: '<%= deleted_employee_path %>',
+                  headers: {'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')},
+                  type: 'POST',
+                  dataType: 'JSON',
+                  data: {'id': id},
+                  success: function (result) {
+                      $('.has-error').removeClass('has-error');
+                      $('#alert').empty();
+                      $('.selector').val('default');
+                      $(".input-md").each(function () {
+                          $(this).val('');
+                      });
+                      $('#alert').append('<div class="alert alert-success">Usuario Eliminado exitosamente</div>');
+                      row.fadeOut();
+                  },
+              });
+          });
+
+
+          $(".edit_employee").on('click', function () {
+
+              var row = $(this).parents('tr');
+              var id = row.data('id');
+              var host = window.location.hostname;
+              var port = window.location.port;
+              var url  = host +':'+ port;
+              $.ajax({
+                  url: '/employee/' + $(this).val(),
+                  type: 'GET',
+                  success: function (data) {
+
+                      var id;
+                      var name;
+                      var rfc;
+                      var job;
+                      var office;
+
+                      id = data.id;
+                      name = data.name;
+                      rfc = data.rfc;
+                      job = data.job;
+                      office = data.office_id;
+
+                      $("#employee_id").val(id);
+                      $("#employee_name").val(name);
+                      $("#employee_rfc").val(rfc);
+                      $("#employee_job").val(job);
+                      $(".selector").val(office);
+                  },
+              });
+          });
+
+
+      });
+
+  </script>
+<% end %>

@@ -1,0 +1,194 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2">
+      <div class="panel panel-default">
+        <div class="panel-heading">Registro</div>
+        <div class="panel-body">
+          <div class="form-horizontal">
+            <%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+              <%= devise_error_messages! %>
+              <div class="form-group" id="group_mail">
+                <%= f.label :email, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group" id="group_name">
+                <%= f.label :nombre, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.text_field :nombre, autofocus: true, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group" id="group_company">
+                <%= f.label :company, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.text_field :company, autofocus: true, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group" id="group_rfc">
+                <%= f.label :rfc, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.text_field :rfc, autofocus: true, class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group" id="group_password">
+                <%= f.label :password, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group" id="group_password_confirm">
+                <%= f.label :password_confirmation, class: "col-md-4 control-label" %>
+                <div class="col-md-6">
+                  <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "form-control" %>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <div class="col-md-8 col-md-offset-4">
+                  <%= f.submit "Registrar", class: "btn btn-primary", id: "submit" %>
+                </div>
+            <% end %>
+            </div>
+            <div id="alert" class="col-md-6 col-md-offset-4">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Move to assets/public/register/index.js file-->
+<% content_for :head do %>
+  <script type="text/javascript">
+
+      $(document).ready(function () {
+
+          $('#submit').on('click', function () {
+
+              $('.has-error').removeClass('has-error');
+              $('#alert').empty();
+
+
+              if ($('#user_email').val() == '') {
+                  $('#group_mail').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Ingresa E-mail</div>');
+
+                  return false;
+              } else {
+
+                  var mail = false;
+                  $.ajax({
+                      url: '<%= email_register_path %>',
+                      headers: {'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')},
+                      type: 'POST',
+                      data: {'email': $('#user_email').val()},
+                      async: false,
+                      success: function (data) {
+
+                          if (data.count >= 1) {
+                              mail = true;
+                              return false;
+                          }
+                      }
+                  });
+
+                  if (mail == true) {
+
+                      $('#group_mail').addClass('has-error');
+                      $('#alert').append('<div class="alert alert-danger">E-Mail Existe</div>');
+                      return false;
+                  }
+              }
+
+
+              if ($('#user_nombre').val() == '') {
+                  $('#group_name').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Ingresa Nombre</div>');
+                  return false;
+              }
+
+              if ($('#user_company').val() == '') {
+                  $('#group_company').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Ingresa Compañia</div>');
+                  return false;
+              }
+
+
+              if ($('#user_rfc').val() == '') {
+                  $('#group_rfc').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Ingresa RFC</div>');
+                  return false;
+              } else {
+
+                  var input = $('#user_rfc').val();
+                  var regex = new RegExp('[A-Z&Ñ]{3,4}[0-9]{2}(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])[A-Z0-9]{2}[0-9A]');
+
+                  if (!regex.test(input)) {
+                      $('#group_rfc').addClass('has-error');
+                      $('#alert').append('<div class="alert alert-danger">Invalida RFC</div>');
+                      return false;
+                  }
+
+                  if (input.length > 13) {
+                      $('#group_rfc').addClass('has-error');
+                      $('#alert').append('<div class="alert alert-danger">Invalida RFC</div>');
+                      return false;
+                  }
+
+                  var rfc = false;
+
+                  $.ajax({
+                      url: '<%= rfc_register_path %>',
+                      headers: {'X-CSRF-Token': $('meta[name="csrf-token"]').attr('content')},
+                      type: 'POST',
+                      data: {'rfc': $('#user_rfc').val()},
+                      async: false,
+                      success: function (data) {
+                          if (data.count >= 1) {
+                              rfc = true;
+                              return false;
+                          }
+                      }
+                  });
+
+                  if (rfc == true) {
+                      $('#alert').empty();
+                      $('#group_rfc').addClass('has-error');
+                      $('#alert').append('<div class="alert alert-danger">RFC Existe</div>');
+                      return false;
+                  }
+              }
+
+
+              if ($('#user_password').val() == '') {
+                  $('#group_password').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Ingresa Password</div>');
+                  return false;
+              }
+
+              if ($('#user_password_confirmation').val() == '') {
+                  $('#group_password_confirm').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Comfirma Password</div>');
+                  return false;
+              }
+
+              if ($('#user_password_confirmation').val() != $('#user_password').val()) {
+                  $('#group_password').addClass('has-error');
+                  $('#group_password_confirm').addClass('has-error');
+                  $('#alert').append('<div class="alert alert-danger">Password no coincide</div>');
+                  return false;
+              }
+
+          });
+
+      });
+
+  </script>
+<% end %>
